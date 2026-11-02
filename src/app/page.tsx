@@ -1,206 +1,31 @@
-import { CurrentDateTime } from "@/components/current-date-time";
-import { JoinForm } from "@/components/join-form";
-import { LuckLadder } from "@/components/luck-ladder";
-import { members } from "@/data/members";
+"use client";
 
-const schedules = [
-  { day: "화요일", time: "오전 9:30", fee: "12,000원", featured: true },
-  { day: "토요일", time: "오전 10:00", fee: "16,000원" },
-  { day: "토요일", time: "오후 1:00", fee: "16,000원" }
+import { useMemo, useState } from "react";
+
+const programs = [
+  { id: 1, category: "사업화", org: "중소벤처기업부", title: "2026년 창업도약패키지 참여기업 모집", desc: "도약기 창업기업의 사업화 자금과 성장 프로그램을 지원합니다.", amount: "최대 3억원", deadline: "2026. 06. 30", tag: "창업 3~7년", color: "mint" },
+  { id: 2, category: "R&D", org: "과학기술정보통신부", title: "AI·데이터 기반 혁신기업 기술개발 지원", desc: "AI 및 데이터 분야 유망 중소기업의 기술개발을 지원합니다.", amount: "최대 2억원", deadline: "2026. 07. 12", tag: "기술개발", color: "lavender" },
+  { id: 3, category: "정책자금", org: "중소벤처기업진흥공단", title: "중소기업 혁신창업사업화 자금 안내", desc: "우수한 기술과 사업성을 보유한 중소기업의 성장을 돕습니다.", amount: "금리 연 2.9%~", deadline: "예산 소진 시", tag: "융자", color: "yellow" },
+  { id: 4, category: "인력", org: "고용노동부", title: "청년일자리도약장려금 참여기업 모집", desc: "청년을 정규직으로 채용한 기업에 인건비를 지원합니다.", amount: "최대 1,200만원", deadline: "2026. 08. 31", tag: "고용지원", color: "peach" },
+  { id: 5, category: "수출", org: "산업통상자원부", title: "중소기업 해외규격인증 획득 지원사업", desc: "해외 진출에 필요한 인증 비용과 컨설팅을 지원합니다.", amount: "인증비용 최대 70%", deadline: "2026. 07. 25", tag: "수출기업", color: "blue" },
+  { id: 6, category: "사업화", org: "소상공인시장진흥공단", title: "소상공인 온라인 판로지원 참여 모집", desc: "온라인 쇼핑몰 입점과 콘텐츠 제작, 마케팅을 지원합니다.", amount: "분야별 상이", deadline: "2026. 06. 18", tag: "소상공인", color: "mint" },
 ];
+const categories = ["전체", "사업화", "R&D", "정책자금", "인력", "수출"];
 
 export default function Home() {
-  return (
-    <>
-      <header className="topbar">
-        <a className="brand" href="#home" aria-label="싱글벙글 홈">
-          <span className="brand-ball" aria-hidden="true">⛳</span>
-          <span>싱글벙글</span>
-        </a>
-        <CurrentDateTime />
-        <nav aria-label="주요 메뉴">
-          <a href="#schedule">정기모임</a>
-          <a href="#members">회원</a>
-          <a href="#ladder">행운상</a>
-          <a className="nav-cta" href="#join">가입하기</a>
-        </nav>
-      </header>
+  const [category, setCategory] = useState("전체");
+  const [query, setQuery] = useState("");
+  const [saved, setSaved] = useState<number[]>([]);
+  const visible = useMemo(() => programs.filter((p) => (category === "전체" || p.category === category) && `${p.title} ${p.org} ${p.tag}`.toLowerCase().includes(query.toLowerCase())), [category, query]);
+  const toggleSaved = (id: number) => setSaved((items) => items.includes(id) ? items.filter((item) => item !== id) : [...items, id]);
 
-      <main>
-        <section className="hero" id="home">
-          <div>
-            <p className="eyebrow">SCREEN GOLF CLUB</p>
-            <h1>함께 치고,<br /><em>함께 웃어요.</em></h1>
-            <p className="hero-copy">실력은 달라도 즐거움은 함께!<br />편하게 만나 즐기는 스크린골프 동호회입니다.</p>
-            <div className="hero-actions"><a className="button primary" href="#join">회원 등록하기</a></div>
-          </div>
-          <div className="next-meeting" aria-label="다음 정기모임 안내">
-            <span>정기모임</span>
-            <strong>매주 화요일 · 토요일</strong>
-            <p>부담 없이 원하는 시간에 함께하세요.</p>
-          </div>
-        </section>
-
-        <section className="section" id="schedule">
-          <div className="section-heading">
-            <p className="eyebrow">WEEKLY SCHEDULE</p>
-            <h2>정기모임</h2>
-            <p>참가비는 1회 기준입니다.</p>
-          </div>
-          <div className="schedule-grid">
-            {schedules.map((schedule) => (
-              <article className={`schedule-card${schedule.featured ? " featured" : ""}`} key={`${schedule.day}-${schedule.time}`}>
-                <span className="day">{schedule.day}</span>
-                <strong>{schedule.time}</strong>
-                <p>{schedule.fee}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="section field-section" id="field-meeting">
-          <div className="field-card">
-            <div className="field-card-heading">
-              <div>
-                <p className="eyebrow">FIELD MEETING</p>
-                <h2>골프존카운티 더골프</h2>
-                <p className="field-status"><span aria-hidden="true">✓</span> 예약 완료</p>
-              </div>
-              <div className="field-date">
-                <strong>10.06</strong>
-                <span>화요일</span>
-              </div>
-            </div>
-
-            <div className="field-details">
-              <div className="field-detail">
-                <span>예약자</span>
-                <strong>김태성</strong>
-              </div>
-              <div className="field-detail">
-                <span>예약 팀</span>
-                <strong>2팀</strong>
-              </div>
-              <div className="field-detail wide">
-                <span>코스 및 티타임</span>
-                <div className="tee-times">
-                  <strong>ROCKY · 오전 6:40</strong>
-                  <strong>ROCKY · 오전 6:47</strong>
-                </div>
-              </div>
-              <div className="field-detail wide preparation-detail">
-                <span>필드 가기 전 준비사항</span>
-                <ul className="preparation-list">
-                  <li>골프채 · 장갑 · 골프화</li>
-                  <li>골프공 · 티 · 볼마커</li>
-                  <li>신분증 · 결제수단</li>
-                  <li>티오프 30분 전 도착</li>
-                </ul>
-              </div>
-              <div className="field-detail wide breakfast-detail">
-                <span>식사 안내</span>
-                <div className="meal-list">
-                  <div className="breakfast-info">
-                    <span aria-hidden="true">☀️</span>
-                    <div>
-                      <strong>아침식사</strong>
-                      <p>각자 식사를 마치고 골프장으로 와주세요.</p>
-                    </div>
-                  </div>
-                  <div className="breakfast-info lunch-info">
-                    <span aria-hidden="true">🍽️</span>
-                    <div>
-                      <strong>점심식사 · 서생집 울산본점</strong>
-                      <p>라운드 후 8명 · 오리불고기 중심 · 1인 회비 20,000원</p>
-                      <p className="reservation-needed">예약 문의 필요 · 울주군 서생면 용연길 148</p>
-                      <a className="restaurant-phone" href="tel:0507-1498-3090">
-                        ☎ 0507-1498-3090
-                      </a>
-                      <div className="restaurant-menu" aria-label="서생집 대표 메뉴 가격">
-                        <span>오리야채불고기 중 <strong>35,000원</strong></span>
-                        <span>오리야채불고기 대 <strong>55,000원</strong></span>
-                        <span>생오리 소금·양념구이 <strong>55,000원</strong></span>
-                        <span>소고기국밥 <strong>8,000원</strong></span>
-                      </div>
-                      <p className="lunch-budget">8명 예산 160,000원 · 대 2개 110,000원 + 추가 메뉴</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="field-detail wide">
-                <span>그린피 안내</span>
-                <div className="fee-breakdown">
-                  <div><small>총 그린피</small><strong>111,000원</strong></div>
-                  <div><small>선입금</small><strong>5,000원</strong></div>
-                  <div><small>당일 결제</small><strong>106,000원</strong></div>
-                </div>
-                <div className="payment-notes">
-                  <p className="payment-note">당일 잔액은 카별로 결제됩니다.</p>
-                  <p className="payment-note important-note">카트비 및 캐디피는 별도로 지불합니다.</p>
-                </div>
-              </div>
-              <div className="field-detail wide prize-detail">
-                <span>대회 상품</span>
-                <div className="prize-list">
-                  <div><span aria-hidden="true">🏆</span><p>최저타 우승<strong>롯데상품권 50,000원</strong></p></div>
-                  <div><span aria-hidden="true">⛳</span><p>최다 파<strong>CJ 카드 20,000원</strong></p></div>
-                  <div><span aria-hidden="true">🍠</span><p>참가자 행운 추첨<strong>고구마 1박스</strong></p></div>
-                </div>
-                <div className="personal-gifts">
-                  <strong>참가자 전원 개인 지급</strong>
-                  <span>3피스 골프공 1개</span>
-                  <span>포카리 2개</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="field-footer">
-              <p>라운드 전에 티타임을 다시 한번 확인해 주세요.</p>
-              <a className="button field-call" href="tel:0522400100">골프장 전화 052-240-0100</a>
-            </div>
-          </div>
-        </section>
-
-        <section className="section soft" id="members">
-          <div className="section-heading row-heading">
-            <div><p className="eyebrow">OUR MEMBERS</p><h2>싱글벙글 회원</h2></div>
-            <span className="member-count">{members.length}명</span>
-          </div>
-          <div className="member-list">
-            {members.map((member) => (
-              <article className="member" key={member.phone}>
-                <div>
-                  <strong>{member.nickname}{member.role && <span className="role">{member.role}</span>}</strong>
-                  <small>{member.name} · {member.gender}</small>
-                </div>
-                <a className="phone" href={`tel:${member.phone.replaceAll("-", "")}`}>{member.phone}</a>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="section ladder-section" id="ladder">
-          <div className="section-heading">
-            <p className="eyebrow">LUCKY DRAW</p>
-            <h2>행운상 사다리</h2>
-            <p>참가 회원을 최대 8명까지 선택하고 고구마 1박스의 주인공을 뽑아보세요.</p>
-          </div>
-          <LuckLadder members={members} />
-        </section>
-
-        <section className="section forms-section">
-          <div className="form-card" id="join">
-            <div className="section-heading">
-              <p className="eyebrow">JOIN US</p>
-              <h2>회원 등록</h2>
-              <p>당근 모임에서 사용하는 닉네임을 정확히 적어주세요.</p>
-            </div>
-            <JoinForm />
-          </div>
-        </section>
-      </main>
-
-      <footer><strong>싱글벙글 스크린골프회</strong><span>실력은 달라도, 즐거움은 함께!</span></footer>
-    </>
-  );
+  return <main className="grant-site">
+    <header className="topbar"><a className="brand" href="#home"><span className="brand-icon">돋</span><span>모아봄<small>사업 기회를 한눈에</small></span></a><nav><a href="#programs">지원사업</a><a href="#guide">이용방법</a><a href="#newsletter">소식받기</a></nav><a className="top-action" href="#programs">사업 찾기 <span>↗</span></a></header>
+    <section className="hero" id="home"><div className="hero-copy"><span className="pill"><i /> 2026 지원사업 큐레이션</span><h1>놓치기 아까운<br />사업 기회, <em>모아봄.</em></h1><p>정부와 공공기관의 지원사업을 한곳에서 찾고,<br />내 사업에 꼭 맞는 기회를 발견해 보세요.</p><a className="hero-button" href="#programs">지금 사업 찾아보기 <span>↓</span></a><div className="hero-note"><b>매일 업데이트</b><span>창업부터 수출까지, 필요한 정보만 쏙쏙</span></div></div><div className="hero-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-sun">봄</div><div className="art-card card-back"><span>이번 달 지원사업</span><b>마감 임박</b><i>03</i></div><div className="art-card card-front"><span className="mini-icon">✳</span><div><b>내 사업의 다음 기회</b><small>맞춤 사업을 찾아보세요</small></div><span className="arrow">↗</span></div><span className="spark spark-a">✳</span><span className="spark spark-b">✳</span><span className="art-caption">FIND YOUR NEXT STEP</span></div><div className="hero-bottom"><span>사업의 시작부터 성장까지</span><span>SCROLL TO EXPLORE ↓</span></div></section>
+    <section className="stats"><div><strong>한곳에서</strong><span>흩어진 지원정보를 모아</span></div><div><strong>쉽고 빠르게</strong><span>찾고 싶은 사업을 검색</span></div><div><strong>내게 맞게</strong><span>분야별로 한눈에 비교</span></div></section>
+    <section className="programs" id="programs"><div className="section-heading"><div><span className="eyebrow">YOUR NEXT OPPORTUNITY</span><h2>지금 주목할 지원사업</h2><p>관심 분야를 골라 나에게 맞는 사업을 찾아보세요.</p></div><a className="all-link" href="#program-list">전체 사업 보기 <span>↗</span></a></div><div className="filters"><div className="tabs" role="tablist" aria-label="지원 분야">{categories.map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}</div><label className="search"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="사업명, 기관, 키워드 검색"/><kbd>⌘ K</kbd></label></div><div className="program-grid" id="program-list">{visible.map((item) => <article className="program-card" key={item.id}><div className="card-top"><span className={`category ${item.color}`}>{item.category}</span><button className={`save ${saved.includes(item.id) ? "is-saved" : ""}`} aria-label={saved.includes(item.id) ? "관심사업 해제" : "관심사업 저장"} onClick={() => toggleSaved(item.id)}>{saved.includes(item.id) ? "♥" : "♡"}</button></div><small className="organization">{item.org}</small><h3>{item.title}</h3><p className="program-desc">{item.desc}</p><div className="card-meta"><span>{item.tag}</span><span>모집 마감 <b>{item.deadline}</b></span></div><div className="card-bottom"><div><small>지원 내용</small><strong>{item.amount}</strong></div><a href="https://www.bizinfo.go.kr/" target="_blank" rel="noreferrer">자세히 보기 <span>↗</span></a></div></article>)}</div>{visible.length === 0 && <div className="empty">검색 결과가 없어요. 다른 키워드로 찾아보세요.</div>}<p className="data-note">지원사업 정보는 예시이며, 실제 모집 여부와 세부 내용은 해당 기관 공고에서 확인해 주세요.</p></section>
+    <section className="guide" id="guide"><div className="guide-intro"><span className="eyebrow">HOW IT WORKS</span><h2>필요한 사업을<br /><em>더 쉽게.</em></h2><p>복잡한 공고 탐색은 가볍게,<br />좋은 기회에 집중할 수 있도록.</p></div><div className="guide-steps"><article><span>01</span><div><b>관심 분야를 선택해요</b><p>사업화, R&D, 정책자금 등 분야별로 살펴보세요.</p></div><i>↗</i></article><article><span>02</span><div><b>조건과 마감일을 확인해요</b><p>지원 대상과 주요 조건을 빠르게 비교할 수 있어요.</p></div><i>↗</i></article><article><span>03</span><div><b>공식 공고에서 신청해요</b><p>기관의 최신 공고를 확인하고 신청을 진행하세요.</p></div><i>↗</i></article></div></section>
+    <section className="newsletter" id="newsletter"><div><span className="eyebrow">GOOD NEWS, IN YOUR INBOX</span><h2>새로운 기회를<br />놓치지 않도록.</h2><p>모아봄과 함께 지원사업 소식을 확인하세요.</p></div><a href="https://www.bizinfo.go.kr/" target="_blank" rel="noreferrer" className="newsletter-button">기업마당에서 더 보기 <span>↗</span></a></section>
+    <footer><a className="brand footer-brand" href="#home"><span className="brand-icon">돋</span><span>모아봄<small>사업 기회를 한눈에</small></span></a><p>정부·공공기관 지원사업 탐색 서비스</p><small>© 2026 모아봄. 공고 정보는 각 주관기관을 통해 확인해 주세요.</small></footer>
+  </main>;
 }
